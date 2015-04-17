@@ -1,0 +1,100 @@
+
+.nuxeo-link #preview-list > li {
+    width:100%;
+}
+
+.nuxeo-link #nuxeo-preview > #numDocLi {
+    font-size:1em;
+    max-width:125px;
+}
+
+
+.nuxeo-link #nuxeo-preview > label {
+    float: right;
+    font-size: 1.1em;
+    position: relative;
+    right: 15px;
+    top: -25px;
+}
+
+.nuxeo-link #nuxeo-search-blurb {
+position:absolute;
+  top: 10px;
+  bottom: 0;
+  left: 75px;
+  right: 0;
+  background-color:white;
+  border:1px solid black;
+  visibility:hidden;
+  -webkit-transition: visibility opacity 0.5s;
+  height:50px;
+  width:650px;
+  padding:5px;
+  border-radius:10px;
+}
+
+.nuxeo-link #nuxeo-search-div:hover > #nuxeo-search-blurb {
+    visibility: visible;
+}
+
+.nuxeo-link #nuxeo-search-div  {
+    position:relative;
+    margin-top: 20px;
+    width:325px;
+}
+
+.nuxeo-link #tree {
+    max-height: 500px;
+    overflow-y: auto;
+    float:left;
+    clear:left;
+    width:35%;
+}
+.nuxeo-link #nuxeo-preview {
+    max-height: 500px;
+    overflow-y: auto;
+    float:left;
+    width:65%
+}
+.nuxeo-link #preview-list li {
+    line-height:75px;
+    overflow:hidden;
+    border-top: 1px solid #000000;
+}
+.nuxeo-link #preview-list li p {
+    float: right;
+    font-size: 1.1em;
+    margin-bottom: 0;
+    margin-top: 0;
+    max-height: 75px;
+    max-width: 300px;
+    padding-right: 5px;
+    padding-top: 5px;
+    text-align: right;
+}
+.nuxeo-link #preview-list li input{
+    margin-right: 5px;
+}
+.nuxeo-link #preview-list li img {
+    height:62px;
+    width:62px;
+    vertical-align:middle;
+    max-width:100px;
+}
+
+.nuxeo-link #preview-list {
+    list-style-type:none;
+}
+
+.nuxeo-link #select-buttons {
+    margin-left:30%;
+}
+.nuxeo-link #select-buttons button {
+    margin-bottom:0;
+}
+
+.nuxeo-link #fieldset-submit_buttons input {
+    margin-left: 40%;
+    margin-right: auto;
+    margin-top: 15px;
+}
