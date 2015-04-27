@@ -1,0 +1,215 @@
+<?php
+
+function cdm_search($collection,$terms) 
+{
+    $searchStrings = '';
+/*    echo('<pre>');
+    print_r($terms);
+    echo('</pre>');
+    die();*/
+    foreach($terms as $term) {
+        if($term['field']=='all')
+            $term['field']=='CISOSEARCHALL';
+        str_replace('!','',$term['string']);
+        str_replace('^','',$term['string']);
+        $searchStrings .= $term['field'].'^'.$term['string'].'^'.$term['mode'].'^'.$term['operator'];
+        $searchStrings .= '!';
+    }
+    $searchStrings = rtrim($searchStrings,'!');
+    $fields = 'title!descri!itemcn';
+    $sortby = 'title';
+    $maxrecs = get_option('cdmMaxRecs');
+    $firstRecordNumber = 1;
+    $suppressCompoundPages = 1;
+    $docptr = 0;
+    $suggest = 0;
+    $facets = 0;
+    $showunpub = 0;
+    $denormalizeFacets = 0;
+    
+    $cdmUrl = get_option('cdmServerUrl');
+    $cdmUrl.= '/dmwebservices/index.php?q=dmQuery/';
+    $cdmUrl .= $collection.'/'; 
+    $cdmUrl .= $searchStrings.'/';
+    $cdmUrl .= $fields.'/';
+    $cdmUrl .= $sortby.'/';
+    $cdmUrl .= $maxrecs.'/';
+    $cdmUrl .= $firstRecordNumber.'/';
+    $cdmUrl .= $suppressCompoundPages.'/';
+    $cdmUrl .= $docptr.'/';
+    $cdmUrl .= $suggest.'/';
+    $cdmUrl .= $facets.'/';
+    $cdmUrl .= $showunpub.'/';
+    $cdmUrl .= $denormalizeFacets.'/';
+    $cdmUrl .= 'json';
+
+    $response = json_decode(file_get_contents($cdmUrl),true);
+    $records = $response['records'];
+    $results = array();
+
+    foreach($records as $record) {
+        $results[] = array(
+            'title'=>$record['title'],
+            'description'=>$record['descri'],
+            'pointer'=>$record['pointer'],
+            'collection'=>$record['collection'],
+            'thumbnail'=> get_option('cdmWebsiteUrl').'/utils/getthumbnail/collection'.$record['collection'].'/id/'.$record['pointer']
+        );
+    }
+    return $results;
+}
+
+function cdm_get_collections() 
+{
+/*
+http://CdmServer.com:port/dmwebservices/index.php?q=dmGetCollectionList/format
+Example
+https://server16019.contentdm.oclc.org/dmwebservices/index.php?q=dmGetCollectionList/json
+ */
+    $url = get_option('cdmServerUrl');
+    $url .= "/dmwebservices/index.php?q=dmGetCollectionList/json";
+    $collections = json_decode(file_get_contents($url),true);
+    $options  = array('/all'=>'All Collections');
+    foreach($collections as $collection)
+        $options[$collection['alias']]=$collection['name'];
+    return $options;    
+}
+
+function cdm_get_collection_fields($collection){
+    $options=array('0'=>'All');
+
+    $url = get_option('cdm_server_url');
+    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
+    $url .= $collection;
+    $url .= "/json";
+    $fields = json_decode(file_get_contents($url),true);
+
+    foreach($fields as $field)
+        $options[$field['nick']]=$field['name'];
+    return $options;    
+}
+
+function cdm_child_descend($node,$pages=false) {
+    if(!is_array($pages) )
+        $pages = array();
+    if(empty($node) )
+        return false;
+
+    foreach($node as $field=>$value) {
+        if($field === 'page') {
+            $pages[]=array(
+                'title'=>$value['pagetitle'],
+                'pointer'=>$value['pageptr'],
+                'pagefile'=>$value['filename']
+            );
+        }
+        if($field === 'node') 
+            $pages = cdm_child_descend($pages);
+    }
+    return $pages;
+}
+
+function cdm_get_child_pages($collection,$pointer)
+{
+    $url = get_option('cdm_server_url');
+    $url .= '/dmwebservices/index.php?q=dmGetCompoundObjectInfo/'.$collection.'/'.$pointer.'/json';
+    $objectMeta = json_decode(file_get_contents($url),true);  
+    if(isset($objectMeta['error']))
+        return false;
+    $pages = $cdm_child_descend($objectMeta['cpd'],array());
+    return $pages;
+}
+
+function cdm_get_transcript($collection,$pointer) 
+{
+    $pages = cdm_get_child_pages($collection,$pointer);
+    $transcript = "";
+    foreach($pages as $page) { 
+        $url = get_option('cdm_server_url');
+        $url .= '/dmwebservices/index.php?q=dmGetItemInfo/'.$collection.'/'.$page['pointer'].'/json';
+        $pageMeta = json_decode(file_get_contents($url),true);
+        $transcript .= isset($pageMeta['transc'] ? $pageMeta['transc'] : '' ;
+        $transcript .= ' ';
+    }
+    return $transcript ? $transcript : false;
+}
+
+function cdm_get_item_meta($collection,$pointer)
+{
+    $url = get_option('cdm_server_url');
+    $url .= '/dmwebservices/index.php?q=dmGetItemInfo/'.$collection.'/'.$pointer.'/json';
+
+    $rawMeta = json_decode(file_get_contents($url),true);
+    $fieldMap = cdm_get_field_map($collection);
+    $meta = array();
+
+    foreach($rawMeta as $field => $meta){
+        if ($field == 'master')
+            $meta['filename'] = $meta;
+        if(!array_key_exists($field,$fieldmap))
+            continue;
+        $meta[$fieldmap[$field]][]=$meta;
+    }
+    $meta['transcript'][]= cdm_get_transcript($collection,$pointer);
+    $meta['relation'][]=get_option('cdmWebsiteUrl').'';
+    return $meta;
+}
+
+function cdm_get_item_files($collection,$pointer,$filename)
+{
+    //TODO get files from child pages if compound object
+
+    if(get_option('cdmAvoidTifs'))
+        if(rtrim($filename,'tif')!==$filename || rtrim($filename,'tiff') !== $filename) {
+            $url = get_option('cdmWebsiteUrl');
+            $url .= '/utils/ajaxhelper/?CISOROOT='.$collection.'&CISOPTR='.$pointer;
+            $url .= '&action=2&DMSCALE='.get_option('cdmScaleTifs');
+        }
+
+    $files = array();
+    $url = get_option('cdmWebsiteUrl');
+    $url .= '/utils/getfile/collection/'.$collection;
+    $url .= '/id/'.$pointer;
+    $url .= '/filename/'.$filename;
+    $files[] = $url;
+    return $files;
+}
+
+function cdm_get_field_map($collection)
+{
+
+    $url = get_option('cdm_server_url');
+    $url .= "/dmwebservices/index.php?q=dmGetDublinCoreFieldInfo/json";
+    $dcFields = json_decode(file_get_contents($url),true);
+
+    foreach($dcFields as $dcField) {
+        $dcmap[$dcField['nick']]=$dcField['name'];
+        $fieldmap[$dcField['nick']]=$dcField['name'];
+    } 
+
+    $url = get_option('cdm_server_url');
+    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
+    $url.= $collection;
+    $url .= "/json";
+    $fields = json_decode(file_get_contents($url),true);
+
+    foreach($fields as $field){
+        if ($field['dc'] === 'BLANK') 
+            continue;
+        $dc = $dcmap[$field['dc']];        
+        $fieldmap[$field['nick']]=$dc;
+    }
+    
+    return $fieldmap;
+
+}
+
+
+/*
+IDEA: use dmGetCompoundObjectInfo to get compound info (if any) and put it in the structmap field
+Signature
+http://CdmServer.com:port/dmwebservices/index.php?q=dmGetCompoundObjectInfo/alias/pointer/format
+
+ */
+
+?>

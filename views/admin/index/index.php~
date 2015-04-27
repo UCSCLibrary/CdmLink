@@ -1,17 +1,15 @@
 <?php
 
-$head = array('bodyclass' => 'nuxeo-link primary', 
-              'title' => html_escape(__('NuxeoLink | Import documents')));
+$head = array('bodyclass' => 'cdm-link primary', 
+              'title' => html_escape(__('CdmLink | Import documents')));
 echo head($head);
 echo flash(); 
 echo $form;
 ?>
-<div id="nuxeo-search-div" class="field">
-<input type="text" id="nuxeo-search-box" />
-<button type="notsubmit" id="nuxeo-search-button">Search</button>
-<p id="nuxeo-search-blurb">
-    Full text search of all metadata fields. Search is conducted within documents contained by the folder selected on the document tree on the left of your screen, or in all collections if no selection has been made.
-</p>
+<div id="cdm-search-div" class="field">
+<input type="text" id="cdm-search-box" />
+<button type="notsubmit" id="cdm-search-button">Search</button>
+<div id='cdm-preview'></div>
 </div>
 <?
 echo foot(); 

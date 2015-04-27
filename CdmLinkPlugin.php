@@ -30,7 +30,8 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
         'config_form',
         'admin_head',
         'define_acl',
-        'upgrade'
+        'upgrade',
+        'public_head'
     );
 
     /**
@@ -42,7 +43,14 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
      * @var array Options and their default values.
      */
     protected $_options = array(
-        'cdmUrl' => '',
+        'cdmServerUrl' => 'https://server16019.contentdm.oclc.org/',
+        'cdmWebsiteUrl' => 'http://digitalcollections.ucsc.edu',
+        'cdmMaxRecs' => 200,
+        'cdmAvoidTifs' => true,
+        'cdmScaleTifs' => 50,
+        'cdmCreatePDFs' => true,
+        'cdmAutoSync' => true,
+        'cdmLastSynced'=>false
     );
 
     /**
@@ -52,6 +60,17 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
      */
     public function hookInstall() {
         $this->_installOptions();
+        //add database table of syncs
+        $sql = "
+            CREATE TABLE IF NOT EXISTS `{$this->_db->CdmSync}` (
+                `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                `item_id` int(10) unsigned NOT NULL,
+                `collection` text,
+                `modified` text,
+                PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
+            $this->_db->query($sql);
+
     }
 
     /**
@@ -62,11 +81,26 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
     public function hookUninstall()
     {
         $this->_uninstallOptions();
+        $sql = "DROP TABLE IF EXISTS `$db->CdmSync` ";
+        $this->_db->query($sql);
+
     }
 
     public function hookUpgrade()
     {
         set_option('cdmKnownSchema',serialize(array('dc'=>'Dublin Core','ucldc_schema'=>'UCLDC Schema')));
+    }
+
+    public function hookPublicHead()
+    {
+   
+        //if we haven't synced our imports today
+        if(get_option('cdmLastSynced')!=date('dmY')){
+            $dispacher = Zend_Registry::get('job_dispatcher');
+            $dispacher->sendLongRunning('CdmLink_SyncJob',array());
+            set_option('cdmLastSynced',date('dmY'));
+        }
+   
     }
 
     /**
@@ -84,8 +118,16 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
      * Process the plugin config form.
      */
     public function hookConfig() { 
-      if(!empty($_REQUEST['cdmUrl']))
-	set_option('cdmUrl',$_REQUEST['cdmUrl']);        
+        if(!empty($_REQUEST['cdmServerUrl']))
+          set_option('cdmServerUrl',$_REQUEST['cdmServerUrl']);        
+        if(!empty($_REQUEST['cdmWebsiteUrl']))
+          set_option('cdmWebsiteUrl',$_REQUEST['cdmWebsiteUrl']);        
+        if(!empty($_REQUEST['cdmAvoidTifs']))
+          set_option('cdmAvoidTifs',$_REQUEST['cdmAvoidTifs']);        
+        if(!empty($_REQUEST['cdmCreatePDFs']))
+          set_option('cdmCreatePDFs',$_REQUEST['cdmCreatePDFs']);        
+        if(!empty($_REQUEST['cdmAutoSync']))
+          set_option('cdmAutoSync',$_REQUEST['cdmAutoSync']);        
     }
     
     /**
@@ -130,7 +172,7 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
     public function filterAdminNavigationMain($nav)
     {
         $nav[] = array(
-            'label' => __('Cdm Link'),
+            'label' => __('Content DM'),
             'uri' => url('cdm-link'),
             'resource' => 'CdmLink_Index',
             'privilege' => 'index'

@@ -1,6 +1,16 @@
 
+.cdm-link #preview-list {
+    width:75%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
 .cdm-link #preview-list > li {
     width:100%;
+}
+
+.cdm-link #fieldset-submit_buttons {
+	  display:none;
 }
 
 .cdm-link #cdm-preview > #numDocLi {
@@ -37,24 +47,22 @@ position:absolute;
     visibility: visible;
 }
 
+.cdm-link #cdm-search-div button {
+display:block;		 
+}
+
+.cdm-link #cdmimportsubmit {
+display:block;		   
+}
+
 .cdm-link #cdm-search-div  {
     position:relative;
     margin-top: 20px;
-    width:325px;
-}
-
-.cdm-link #tree {
-    max-height: 500px;
-    overflow-y: auto;
-    float:left;
-    clear:left;
-    width:35%;
 }
 .cdm-link #cdm-preview {
     max-height: 500px;
     overflow-y: auto;
-    float:left;
-    width:65%
+    width:80%;
 }
 .cdm-link #preview-list li {
     line-height:75px;
