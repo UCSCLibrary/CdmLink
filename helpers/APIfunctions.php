@@ -376,7 +376,7 @@ function cdm_sync_item($collection,$pointer,$item_id) {
         $eSet = $element->getElementSet();
         if($eSet->name=='Dublin Core')
             $eText->delete();
-        if($eSet->name=='Item Type Metadata' && $element->name=='Transcript')
+        if($eSet->name=='Item Type Metadata' && $element->name=='Text')
             $eText->delete();
     }
 
@@ -396,8 +396,16 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
     foreach($meta as $field=>$values) {
         $field = strpos($field,'-') ? substr($field,0,strpos($field,'-')) : $field ;
         $elementTable = get_db()->getTable('Element');
-        $elementSet = $field==='Transcript' ? 'Item Type Metadata' : 'Dublin Core';
-        $field = str_replace('Transcript','Transcription',$field);
+        if($field==='Transcript'){
+            $elementSet = 'Item Type Metadata';
+            $field = 'Text';
+            $documentType = get_db()->getTable('ItemType')->findByName('Document');
+            $item->item_type_id = $documentType->id;
+            $item->save();
+
+        }else {
+            $elementSet = 'Dublin Core';
+        }
         $element = $elementTable->findbyElementSetNameAndElementName($elementSet,$field);
         if($field === 'filename' && !empty($values)){
             $filename = is_array($values) ? $values[0] : $values;
