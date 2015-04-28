@@ -31,7 +31,8 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
         'admin_head',
         'define_acl',
         'upgrade',
-        'public_head'
+        'public_head',
+        'after_delete_item'
     );
 
     /**
@@ -45,10 +46,11 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
     protected $_options = array(
         'cdmServerUrl' => 'https://server16019.contentdm.oclc.org/',
         'cdmWebsiteUrl' => 'http://digitalcollections.ucsc.edu',
-        'cdmMaxRecs' => 200,
-        'cdmAvoidTifs' => true,
-        'cdmScaleTifs' => 50,
-        'cdmCreatePDFs' => true,
+        'cdmMaxRecs' => 500,
+        'cdmLimitImageSize' => true,
+        'cdmMaxWidth' => 1200,
+        'cdmConcatImages' => true,
+        'cdmConcatPdfs' => true,
         'cdmAutoSync' => true,
         'cdmLastSynced'=>false
     );
@@ -66,6 +68,7 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
                 `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
                 `item_id` int(10) unsigned NOT NULL,
                 `collection` text,
+                `pointer` text,
                 `modified` text,
                 PRIMARY KEY (`id`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
@@ -81,9 +84,8 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
     public function hookUninstall()
     {
         $this->_uninstallOptions();
-        $sql = "DROP TABLE IF EXISTS `$db->CdmSync` ";
+        $sql = "DROP TABLE IF EXISTS `{$this->_db->CdmSync}`";
         $this->_db->query($sql);
-
     }
 
     public function hookUpgrade()
@@ -92,8 +94,7 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
     }
 
     public function hookPublicHead()
-    {
-   
+    {   
         //if we haven't synced our imports today
         if(get_option('cdmLastSynced')!=date('dmY')){
             $dispacher = Zend_Registry::get('job_dispatcher');
@@ -111,6 +112,7 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
     public function hookInitialize()
     {
         require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'jobs' . DIRECTORY_SEPARATOR . 'import.php';
+        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'jobs' . DIRECTORY_SEPARATOR . 'sync.php';
         require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'APIfunctions.php';
     }
 
@@ -122,10 +124,14 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
           set_option('cdmServerUrl',$_REQUEST['cdmServerUrl']);        
         if(!empty($_REQUEST['cdmWebsiteUrl']))
           set_option('cdmWebsiteUrl',$_REQUEST['cdmWebsiteUrl']);        
-        if(!empty($_REQUEST['cdmAvoidTifs']))
-          set_option('cdmAvoidTifs',$_REQUEST['cdmAvoidTifs']);        
-        if(!empty($_REQUEST['cdmCreatePDFs']))
-          set_option('cdmCreatePDFs',$_REQUEST['cdmCreatePDFs']);        
+        if(!empty($_REQUEST['cdmLimitImageSize']))
+          set_option('cdmLimitImageSize',$_REQUEST['cdmLimitImageSize']);    
+        if(!empty($_REQUEST['cdmMaxWidth']))
+          set_option('cdmMaxWidth',$_REQUEST['cdmMaxWidth']);        
+        if(!empty($_REQUEST['cdmConcatImages']))
+          set_option('cdmConcatImages',$_REQUEST['cdmConcatImages']);    
+        if(!empty($_REQUEST['cdmConcatPdfs']))
+          set_option('cdmConcatPdfs',$_REQUEST['cdmConcatPdfs']);        
         if(!empty($_REQUEST['cdmAutoSync']))
           set_option('cdmAutoSync',$_REQUEST['cdmAutoSync']);        
     }
@@ -178,5 +184,12 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
             'privilege' => 'index'
         );
         return $nav;
+    }
+
+    public function hookAfterDeleteItem($args) {
+        $item = $args['record'];
+        $syncs = $this->_db->getTable('CdmSync')->findBy(array('item_id'=>$item->id));
+        foreach($syncs as $sync) 
+            $sync->delete();
     }
 }

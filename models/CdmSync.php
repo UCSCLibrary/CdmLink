@@ -7,6 +7,7 @@
  */
 class CdmSync extends Omeka_Record_AbstractRecord
 {
+    public $id;
     /*
      *@var int The item ID of the omeka item
      */

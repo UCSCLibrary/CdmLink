@@ -42,12 +42,19 @@ class Cdm_Form_Import extends Omeka_Form
 			  );
  
 	// Cdm Collection:
+        $cdmCollections = array('CONNECTION ERROR');
+        try{
+            $cdmCollections = cdm_get_collections();
+        } catch(Exception $e) {
+            //do nothing
+        }
+
         $this->addElement('select', 'cdmcollection', array(
 							'label'         => __('ContentDM Collection'),
 							'description'   => __('From which ContentDM collection would you like to import content?'),
 							'value'         => '0',
 							'order'         => 2,
-							'multiOptions'       => cdm_get_collections()
+							'multiOptions'       => $cdmCollections
 							)
 			  );
 
@@ -56,10 +63,10 @@ class Cdm_Form_Import extends Omeka_Form
             'label'         => __('Public Visibility'),
             'description'   => __('Would you like to make the imported items public on your Omeka site?'),
             'checked'         => 'checked',
-	    'order'         => 6
+            'order'         => 6
         )
         );
-
+        
         // Submit:
         $this->addElement('submit', 'cdmimportsubmit', array(
             'label' => __('Import Item(s)'),
@@ -99,7 +106,7 @@ class Cdm_Form_Import extends Omeka_Form
         try {
 
             if(self::_import())
-                return('Your Cdm documents are now being imported. You will recieve an email when your import is complete. This process may take a few minutes. You may continue to work while the photos are imported in the background. You may notice some strange behavior while the photos are uploading, but it will all be over soon.');
+                return('Your Cdm documents are now being imported. You will recieve an email when your import is complete. This process may take some time if you are importing items with large attachments. You may continue to work while the import completes. You may notice some strange behavior while the items are importing, but it will all be over soon.');
 
         } catch(Exception $e) 
                 {

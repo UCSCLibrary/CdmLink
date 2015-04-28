@@ -22,7 +22,6 @@ class CdmLink_SyncJob extends Omeka_Job_AbstractJob
         require_once(dirname(dirname(__FILE__)).'/helpers/APIfunctions.php');
 
         $syncs = get_db()->getTable('CdmSync')->findAll();
-
         foreach($syncs as $sync) {
             if($sync->modified == cdm_get_modified($sync->collection,$sync->pointer))
                 continue;

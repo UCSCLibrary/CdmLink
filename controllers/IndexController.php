@@ -81,13 +81,24 @@ class Cdmlink_IndexController extends Omeka_Controller_AbstractActionController
       }
 
       $collection = $this->getParam('collection');
-      $this->view->documents = cdm_search($collection,$searchTerms);
-      die(json_encode($this->view->documents));
+      try{
+          $documents = cdm_search($collection,$searchTerms);
+      } catch (Exception $e) {
+          die('Error connecting to ContentDM. Please check your internet connection and plugin configuration.');
+      }
+      die(json_encode($documents));
   }
+
   public function fieldsAction()
   {
       //require the helpers
       require_once(dirname(dirname(__FILE__)).'/helpers/APIfunctions.php');
-      die(json_encode(cdm_get_fields($this->getParam('collection'))));
+      try{
+          $fields = json_encode(cdm_get_fields($this->getParam('collection')));
+      }catch(Exception $e) {
+          die('Error connecting to ContentDM. Please check your internet connection and plugin configuration.');
+      }
+      die($fields);
   }
+
 }
