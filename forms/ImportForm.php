@@ -30,6 +30,8 @@ class Cdm_Form_Import extends Omeka_Form
      */
     private function _registerElements()
     {
+
+      $this->addElement('hash','cdm_import_token');
               
 	// Omeka Collection:
         $this->addElement('select', 'cdmomekacollection', array(
