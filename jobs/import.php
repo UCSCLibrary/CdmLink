@@ -23,7 +23,7 @@ class CdmLink_ImportJob extends Omeka_Job_AbstractJob
     private $_email;
 
     public function setOmekaCollection($collection) {
-        $this->_collection = $collection;
+        $this->_omekaCollection = $collection;
     }
 
     public function setPublic($public) {
@@ -40,9 +40,6 @@ class CdmLink_ImportJob extends Omeka_Job_AbstractJob
 
     public function perform()
     {
-
-
-
         Zend_Registry::get('bootstrap')->bootstrap('Acl');
       
         //require the helpers

@@ -139,13 +139,13 @@ class Cdm_Form_Import extends Omeka_Form
         else 
             $public = false;
 
-        if(isset($_REQUEST['cdm-import-items']))
-            $pointers = $_REQUEST['cdm-import-items'];
+        if(isset($_REQUEST['cdm-items']))
+            $pointers = $_REQUEST['cdm-items'];
         else 
             $pointers = array();
 
-        if(isset($_REQUEST['cdm-import-collections']))
-            $collections = $_REQUEST['cdm-import-collections'];
+        if(isset($_REQUEST['cdm-collections']))
+            $collections = $_REQUEST['cdm-collections'];
         else 
             $collections = array();
 
@@ -200,4 +200,4 @@ class Cdm_Form_Import extends Omeka_Form
             $options[$key]=$value;
         return $options;
     }
-}
+} 

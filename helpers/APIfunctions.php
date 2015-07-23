@@ -1,13 +1,25 @@
 <?php
 
-function cdm_search($collection,$terms) 
+function cdm_search($collection,$terms,$maxrecs = false) 
 {
     $searchStrings = '';
 /*    echo('<pre>');
     print_r($terms);
     echo('</pre>');
     die();*/
+    $newterms = array();
     foreach($terms as $term) {
+        if(count($strings = preg_split('/\s+/', $term['string'])) > 0) {
+            foreach ($strings as $string) {
+                $newterms[] = $term;
+                end($newterms);
+                $newterms[key($newterms)]['string'] = $string;
+            }
+        } else {
+            $newterms[] = $term;
+        }
+    }
+    foreach($newterms as $term) {
         if($term['field']=='all')
             $term['field']=='CISOSEARCHALL';
         str_replace('!','',$term['string']);
@@ -18,7 +30,7 @@ function cdm_search($collection,$terms)
     $searchStrings = rtrim($searchStrings,'!');
     $fields = 'title!descri!itemcn';
     $sortby = 'title';
-    $maxrecs = get_option('cdmMaxRecs');
+    $maxrecs = $maxrecs ? $maxrecs : get_option('cdmMaxRecs');
     $firstRecordNumber = 1;
     $suppressCompoundPages = 1;
     $docptr = 0;
@@ -61,7 +73,7 @@ function cdm_search($collection,$terms)
     return $results;
 }
 
-function cdm_get_collections() 
+function cdm_get_collections($label="All Collections",$slug="/all") 
 {
 /*
 http://CdmServer.com:port/dmwebservices/index.php?q=dmGetCollectionList/format
@@ -75,7 +87,7 @@ https://server16019.contentdm.oclc.org/dmwebservices/index.php?q=dmGetCollection
     } catch (Exception $e) {
         return array('CONNECTION ERROR');
     } 
-    $options  = array('/all'=>'All Collections');
+    $options  = array($slug=>$label);
     foreach($collections as $collection)
         $options[$collection['alias']]=$collection['name'];
     return $options;    
@@ -137,24 +149,52 @@ function cdm_get_transcript($collection,$pointer)
     return $transcript ? $transcript : false;
 }
 
-function cdm_get_item_meta($collection,$pointer)
+function cdm_get_item_meta($collection,$pointer,$all=false,$fields = false,$fieldmap = false)
 {
-    $url = get_option('cdmServerUrl');
-    $url .= '/dmwebservices/index.php?q=dmGetItemInfo'.$collection.'/'.$pointer.'/json';
-
-    $rawMeta = json_decode(file_get_contents($url),true);
-    $fieldmap = cdm_get_field_map($collection);
+    $rawMeta = cdm_get_raw_item_meta($collection,$pointer);
+    $fields = $fields ? $fields : cdm_get_fields($collection);
+    $fieldmap = $fieldmap ? $fieldmap : cdm_get_field_map($collection);
     $meta = array();
     foreach($rawMeta as $field => $value){
         if ($field == 'master')
             $meta['filename'] = $value;
-        if(!array_key_exists($field,$fieldmap))
-            continue;
+        if(!array_key_exists($field,$fieldmap)) {
+            if($all) 
+                $meta[$field]=$value;
+            continue; 
+        }
         $meta[$fieldmap[$field]][]=$value;
     }
     $meta['Transcript'][]= cdm_get_transcript($collection,$pointer);
     $meta['Relation'][]= cdm_get_public_url($collection,$rawMeta['find']);
     return $meta;
+}
+
+function cdm_get_raw_item_meta($collection,$pointer)
+{
+    $url = get_option('cdmServerUrl');
+    $url .= '/dmwebservices/index.php?q=dmGetItemInfo'.$collection.'/'.$pointer.'/json';
+
+    $rawMeta = json_decode(file_get_contents($url),true);
+    return $rawMeta;
+}
+
+/**
+ *  outputCSV creates a line of CSV and outputs it to browser    
+ */
+function outputCSV($array) {
+    $fp = fopen('php://output', 'w'); // this file actual writes to php output
+    fputcsv($fp, $array);
+    fclose($fp);
+}
+ 
+/**
+ *  getCSV creates a line of CSV and returns it. 
+ */
+function getCSV($array) {
+    ob_start(); // buffer the output ...
+    outputCSV($array);
+    return ob_get_clean(); // ... then return it as a string!
 }
 
 function cdm_get_modified($collection,$pointer) {
@@ -440,14 +480,14 @@ function cdm_get_fields($collection)
     if($collection=='all')
         return false;
     $url = get_option('cdmServerUrl');
-    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
+//    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
+    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo";
     $url.= $collection;
     $url .= "/json";
     $fields = json_decode(file_get_contents($url),true);
-//      print_r($fields);
+    $rv = array();
     foreach($fields as $field) 
         $rv[$field['nick']]=$field['name'];
-    
     return $rv;
 }
 
