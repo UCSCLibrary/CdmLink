@@ -440,7 +440,7 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
             $elementSet = 'Item Type Metadata';
             $field = 'Text';
             $documentType = get_db()->getTable('ItemType')->findByName('Document');
-            $item->item_type_id = $documentType->id;
+            $item->item_type_id = is_object($documentType) ? $documentType->id : null;
             $item->save();
 
         }else {

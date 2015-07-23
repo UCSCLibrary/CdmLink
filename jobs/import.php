@@ -46,9 +46,13 @@ class CdmLink_ImportJob extends Omeka_Job_AbstractJob
         require_once(dirname(dirname(__FILE__)).'/helpers/APIfunctions.php');
 
         foreach($this->_items as $item) {
+
             $collection = $item['alias'];
             $pointer = $item['pointer'];
 
+            echo("$collection - $pointer \n");
+            echo($this->_public."\n");
+            echo($this->_omekaCollection."\n");
             
             //The $filename variable will hold the filename of the file 
             //associated with the primary 
@@ -60,7 +64,7 @@ class CdmLink_ImportJob extends Omeka_Job_AbstractJob
 
             $item = new Item();
             $item->public = $this->_public;
-            $item->collection_id = $this->_omekaCollection;
+            $item->collection_id = $this->_omekaCollection ? $this->_omekaCollection : null;
             $item->save();
 
             cdm_add_meta_and_files($item,$collection,$pointer);
