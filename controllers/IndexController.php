@@ -58,6 +58,30 @@ class Cdmlink_IndexController extends Omeka_Controller_AbstractActionController
     $this->view->form = $form;
   }
 
+  public function exportAction()
+  {
+      include_once(dirname(dirname(__FILE__))."/forms/ExportForm.php");
+      $form = new Cdm_Form_Export();
+      
+      //initialize flash messenger for success or fail messages
+      $flashMessenger = $this->_helper->FlashMessenger;
+
+      if ($this->getRequest()->isPost()){
+          if($form->isValid($this->getRequest()->getPost())) {
+              //set headers 
+              header('Content-type: text/csv');
+              header('Content-Disposition: attachment; filename="cdm-export-'.date("Y-m-d-H-i-s").'.csv"');
+              //disable view rendering
+              $this->_helper->viewRenderer->setNoRender();
+              Cdm_Form_Export::Export();
+          } else { 
+              $flashMessenger->addMessage('There was a problem exporting your Cdm documents. Please check your Cdm URL settings.','error');
+          }  
+      } 
+
+    $this->view->form = $form;
+  }
+  
   public function searchAction()
   {
       //require the helpers

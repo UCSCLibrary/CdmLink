@@ -30,6 +30,7 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
         'config_form',
         'admin_head',
         'define_acl',
+        'define_routes',
         'upgrade',
         'public_head',
         'after_delete_item'
@@ -75,6 +76,28 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
             $this->_db->query($sql);
 
     }
+
+    function hookDefineRoutes($args)
+    {
+        // Don't add these routes on the public side to avoid conflicts.
+        if (!is_admin_theme()) 
+            return;
+       
+        $router = $args['router'];
+        // Add a custom export route
+        $router->addRoute(
+            'cdm_link_export',
+            new Zend_Controller_Router_Route(
+                'cdm-link-export',
+                array(
+                    'module'       => 'cdm-link',
+                    'controller'   => 'index',
+                    'action'       => 'export'
+                )
+            )
+        );
+    }
+
 
     /**
      * Uninstall the options
@@ -124,6 +147,8 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
           set_option('cdmServerUrl',$_REQUEST['cdmServerUrl']);        
         if(!empty($_REQUEST['cdmWebsiteUrl']))
           set_option('cdmWebsiteUrl',$_REQUEST['cdmWebsiteUrl']);        
+        if(!empty($_REQUEST['cdmMaxRecs']))
+          set_option('cdmMaxRecs',$_REQUEST['cdmMaxRecs']);        
         if(!empty($_REQUEST['cdmLimitImageSize']))
           set_option('cdmLimitImageSize',$_REQUEST['cdmLimitImageSize']);    
         if(!empty($_REQUEST['cdmMaxWidth']))

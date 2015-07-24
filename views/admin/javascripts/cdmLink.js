@@ -49,8 +49,8 @@ function implementSearch() {
 		}
 		jQuery.each(data,function(index,value) {
 		    prevLi = '<li id="preview-'+value['pointer']+'">';
-		    prevLi += '<input type="checkbox" class="import-check" checked="checked" name="cdm-import-items[]" value="'+value['pointer']+'" />';
-		    prevLi += '<input type="hidden" name="cdm-import-collections[]" value="'+value['collection']+'" />';
+		    prevLi += '<input type="checkbox" class="cdm-check" checked="checked" name="cdm-items[]" value="'+value['pointer']+'" />';
+		    prevLi += '<input type="hidden" name="cdm-collections[]" value="'+value['collection']+'" />';
 		    prevLi += '<img src="'+encodeURI(value['thumbnail'])+'?path=%2Fviews%2Fitem%5B3%5D%2Fcontent" />';
 		    prevLi += "<p>"+value['title']+"</p>";
 		    prevLi += "</li>";
@@ -68,11 +68,10 @@ function implementSearch() {
 function bindButtonActions() {
     jQuery('#select-all').click(function(e) {
 	e.preventDefault();
-	jQuery('.import-check').prop('checked',true);
+	jQuery('.cdm-check').prop('checked',true);
     });
     jQuery('#select-none').click(function(e) {
 	e.preventDefault();
-	jQuery('.import-check').attr('checked',false);
+	jQuery('.cdm-check').attr('checked',false);
     });
-
 }

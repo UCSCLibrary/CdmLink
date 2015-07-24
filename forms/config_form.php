@@ -20,6 +20,16 @@
 </div>
 
 <div class="field">
+    <div id="cdm-max-recs-label" class="two columns alpha">
+        <label for="cdm-max-recs-label"><?php echo __('Max records'); ?></label>
+    </div>
+    <div class="inputs five columns omega">
+<?php echo get_view()->formText('cdmMaxRecs',get_option('cdmMaxRecs'),array()); ?>
+        <p class="explanation"><?php echo __('Enter the maximum number or results to return on search functions'); ?></p>
+    </div>
+</div>
+
+<div class="field">
     <div id="cdm-limit-image-size-label" class="two columns alpha">
         <label for="cdm-limit-image-size-label"><?php echo __('Limit image size'); ?></label>
     </div>
