@@ -481,7 +481,7 @@ function cdm_get_fields($collection)
         return false;
     $url = get_option('cdmServerUrl');
 //    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
-    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo";
+    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
     $url.= $collection;
     $url .= "/json";
     $fields = json_decode(file_get_contents($url),true);

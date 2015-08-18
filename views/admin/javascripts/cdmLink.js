@@ -1,10 +1,10 @@
 var cdmflag = false;
-var searchUrl = 'cdm-link/index/search/collection';
+var searchUrl = 'search/collection';
 jQuery(document).ready(implementSearch);
 jQuery(document).ready(function(){
 	jQuery('#cdmcollection').change(function(){
 		jQuery('#cdm-field-select').html('<option value="all">All</option>');
-		url = 'cdm-link/index/fields/collection'+jQuery('#cdmcollection').val();
+		url = 'fields/collection'+jQuery('#cdmcollection').val();
 		jQuery.get(url,function(data){
 			fields = JSON.parse(data);
 			jQuery.each(fields,function(index,value){
