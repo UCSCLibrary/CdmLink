@@ -149,6 +149,7 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
           set_option('cdmWebsiteUrl',$_REQUEST['cdmWebsiteUrl']);        
         if(!empty($_REQUEST['cdmMaxRecs']))
           set_option('cdmMaxRecs',$_REQUEST['cdmMaxRecs']);        
+
         if(!empty($_REQUEST['cdmLimitImageSize']))
           set_option('cdmLimitImageSize',$_REQUEST['cdmLimitImageSize']);    
         if(!empty($_REQUEST['cdmMaxWidth']))

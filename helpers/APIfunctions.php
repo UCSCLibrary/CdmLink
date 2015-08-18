@@ -31,6 +31,7 @@ function cdm_search($collection,$terms,$maxrecs = false)
     $fields = 'title!descri!itemcn';
     $sortby = 'title';
     $maxrecs = $maxrecs ? $maxrecs : get_option('cdmMaxRecs');
+    $maxrecs = $maxrecs > 0 ? $maxrecs : null;
     $firstRecordNumber = 1;
     $suppressCompoundPages = 1;
     $docptr = 0;
