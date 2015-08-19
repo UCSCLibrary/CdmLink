@@ -77,11 +77,12 @@ function cdm_get_all_records($collection) {
 
     $start = 1;
     $total = 2; //dummy value greater than $start
-    $maxrecs=1024;
+    $maxrecs='1024';
     
     $cdmUrlBase = get_option('cdmServerUrl');
     $results = array();
 
+    $i=0;
     while($start < $total) {
       set_time_limit(30);
       $cdmUrl = $cdmUrlBase;
@@ -90,20 +91,15 @@ function cdm_get_all_records($collection) {
       $cdmUrl .= $maxrecs.'/';
       $cdmUrl .= $start.'/';
       $cdmUrl .= '1/0/0/0/0/0/json';
-      
+        
       $response = json_decode(file_get_contents($cdmUrl),true);
       if(empty($response['records']))
         break;      
       $total = $response['pager']['total'];
-
       $records = $response['records'];
-      foreach($records as $record) {
+      foreach($records as $record) 
         $results[] = $record['pointer'];
-      }      
       $start += $maxrecs;
-      $i = isset($i) ? $i + 1 : 0;
-      if($i>2)
-        die(count($results).'/'.$total);
     }
     return $results;
 }
@@ -521,8 +517,9 @@ function cdm_get_fields($collection)
     $url .= "/json";
     $fields = json_decode(file_get_contents($url),true);
     $rv = array();
-    foreach($fields as $field) 
-        $rv[$field['nick']]=$field['name'];
+    if(is_array($fields)) 
+        foreach($fields as $field) 
+            $rv[$field['nick']]=$field['name'];
     return $rv;
 }
 

@@ -146,7 +146,10 @@ class Cdm_Form_Export extends Omeka_Form
         //header
         outputCSV($fields);
 
-        foreach($pointers as $index=>$pointer) {
+print_r($pointers);
+        die();
+
+        foreach($pointers as $pointer) {
             $line='';
             set_time_limit(10);
             $meta = cdm_get_raw_item_meta($cdmCollection,$pointer);
@@ -164,6 +167,4 @@ class Cdm_Form_Export extends Omeka_Form
         }
         return true;
     }
-
-
 }
