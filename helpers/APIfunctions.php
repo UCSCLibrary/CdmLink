@@ -31,7 +31,6 @@ function cdm_search($collection,$terms,$maxrecs = false)
     $fields = 'title!descri!itemcn';
     $sortby = 'title';
     $maxrecs = $maxrecs ? $maxrecs : get_option('cdmMaxRecs');
-    $maxrecs = $maxrecs > 0 ? $maxrecs : null;
     $firstRecordNumber = 1;
     $suppressCompoundPages = 1;
     $docptr = 0;
@@ -70,6 +69,41 @@ function cdm_search($collection,$terms,$maxrecs = false)
             'collection'=>$record['collection'],
             'thumbnail'=> get_option('cdmWebsiteUrl').'/utils/getthumbnail/collection'.$record['collection'].'/id/'.$record['pointer']
         );
+    }
+    return $results;
+}
+
+function cdm_get_all_records($collection) {
+
+    $start = 1;
+    $total = 2; //dummy value greater than $start
+    $maxrecs=1024;
+    
+    $cdmUrlBase = get_option('cdmServerUrl');
+    $results = array();
+
+    while($start < $total) {
+      set_time_limit(30);
+      $cdmUrl = $cdmUrlBase;
+      $cdmUrl.= '/dmwebservices/index.php?q=dmQuery';
+      $cdmUrl .= $collection.'////';
+      $cdmUrl .= $maxrecs.'/';
+      $cdmUrl .= $start.'/';
+      $cdmUrl .= '1/0/0/0/0/0/json';
+      
+      $response = json_decode(file_get_contents($cdmUrl),true);
+      if(empty($response['records']))
+        break;      
+      $total = $response['pager']['total'];
+
+      $records = $response['records'];
+      foreach($records as $record) {
+        $results[] = $record['pointer'];
+      }      
+      $start += $maxrecs;
+      $i = isset($i) ? $i + 1 : 0;
+      if($i>2)
+        die(count($results).'/'.$total);
     }
     return $results;
 }

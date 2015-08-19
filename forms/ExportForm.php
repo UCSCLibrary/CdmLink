@@ -42,14 +42,20 @@ class Cdm_Form_Export extends Omeka_Form
         }
 
         $this->addElement('select', 'cdmcollection', array(
-							'label'         => __('ContentDM Collection'),
-							'description'   => __('From which ContentDM collection would you like to export content?'),
-							'value'         => '0',
-							'order'         => 2,
-							'multiOptions'       => $cdmCollections
-							)
+                                                           'label'         => __('ContentDM Collection'),
+                                                           'description'   => __('From which ContentDM collection would you like to export content?'),
+                                                           'value'         => '0',
+                                                           'order'         => 2,
+                                                           'multiOptions'       => $cdmCollections
+                                                           )
 			  );
         
+        $this->addElement('checkbox','cdmExportAll', array(
+                                                           'label' => 'Export All',
+                                                           'description' => 'Export all items in the specified collection?',
+                                                           'order' => 3
+                                                           ));
+
         // Submit:
         $this->addElement('submit', 'cdmexportsubmit', array(
             'label' => __('Export Item(s)'),
@@ -60,6 +66,7 @@ class Cdm_Form_Export extends Omeka_Form
         $this->addDisplayGroup(
 			       array(
 				     'cdmcollection',
+                                     'cdmExportAll'
 				     ),
 			       'source-fields'
 			       );
@@ -83,6 +90,9 @@ class Cdm_Form_Export extends Omeka_Form
         if(!$cdmCollection = $_REQUEST['cdmcollection'])
             return;        
 
+        if(!empty($_REQUEST['cdmExportAll']))
+          return self::ExportAll();
+
         if(isset($_REQUEST['cdm-items']))
             $pointers = $_REQUEST['cdm-items'];
         else 
@@ -90,8 +100,6 @@ class Cdm_Form_Export extends Omeka_Form
         
         if(!is_array($pointers) || count($pointers)==0 )
             return;
-
-        $items = array();
 
         $fields = cdm_get_fields($cdmCollection);
 
@@ -116,4 +124,46 @@ class Cdm_Form_Export extends Omeka_Form
         }
         return true;
     }
+
+    /**
+     *Process the form data and output csv as necessary
+     *
+     *@return bool $success true if successful 
+     */
+    public static function ExportAll()
+    {
+
+        if(!$cdmCollection = $_REQUEST['cdmcollection'])
+            return;        
+
+        $pointers = cdm_get_all_records($cdmCollection);
+
+        if(!is_array($pointers) || count($pointers)==0 )
+            return "no documents found";
+
+        $fields = cdm_get_fields($cdmCollection);
+
+        //header
+        outputCSV($fields);
+
+        foreach($pointers as $index=>$pointer) {
+            $line='';
+            set_time_limit(10);
+            $meta = cdm_get_raw_item_meta($cdmCollection,$pointer);
+            foreach($fields as $nick=>$name){
+                if(is_array($meta[$nick])){
+                    foreach($meta[$nick] as $key=>$value){
+                        if(strpos($value,'|')!==FALSE)
+                            $meta[$nick][$key]  = str_replace('|','',$value);
+                    }
+                    $meta[$nick] = implode('|',$meta[$nick]);
+                }
+                $line[]=$meta[$nick];
+            }
+            outputCSV($line);
+        }
+        return true;
+    }
+
+
 }
