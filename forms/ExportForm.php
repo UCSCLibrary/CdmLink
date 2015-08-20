@@ -146,8 +146,8 @@ class Cdm_Form_Export extends Omeka_Form
         //header
         outputCSV($fields);
 
-print_r($pointers);
-        die();
+//print_r($pointers);
+//        die();
 
         foreach($pointers as $pointer) {
             $line='';
