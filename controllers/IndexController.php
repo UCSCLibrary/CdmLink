@@ -30,7 +30,7 @@ class Cdmlink_IndexController extends Omeka_Controller_AbstractActionController
   {
       include_once(dirname(dirname(__FILE__))."/forms/ImportForm.php");
       $form = new Cdm_Form_Import();
-      
+      $form->getElement('base-url')->setValue(public_url('cdm-link/index/')); 
       //initialize flash messenger for success or fail messages
       $flashMessenger = $this->_helper->FlashMessenger;
 
@@ -62,7 +62,8 @@ class Cdmlink_IndexController extends Omeka_Controller_AbstractActionController
   {
       include_once(dirname(dirname(__FILE__))."/forms/ExportForm.php");
       $form = new Cdm_Form_Export();
-      
+      $form->getElement('base-url')->setValue(public_url('cdm-link/index/'));     
+  
       //initialize flash messenger for success or fail messages
       $flashMessenger = $this->_helper->FlashMessenger;
 

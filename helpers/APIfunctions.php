@@ -24,7 +24,8 @@ function cdm_search($collection,$terms,$maxrecs = false)
             $term['field']=='CISOSEARCHALL';
         str_replace('!','',$term['string']);
         str_replace('^','',$term['string']);
-        $searchStrings .= $term['field'].'^'.$term['string'].'^'.$term['mode'].'^'.$term['operator'];
+        $searchStrings .= $term['field'].'^'.$term['string'].'^'.$term['mo
+de'].'^'.$term['operator'];
         $searchStrings .= '!';
     }
     $searchStrings = rtrim($searchStrings,'!');
@@ -145,11 +146,17 @@ function cdm_child_descend($node,$pages=false) {
     return $pages;
 }
 
-function cdm_get_public_url($collection,$find) {
-    $url = get_option('cdmServerUrl');
+function cdm_get_public_url($collection,$id) {
+
+    return $url = get_option('cdmWebsiteUrl').'/cdm/singleitem/collection'.$collection.'/id/'.$id;
+
+/*    $url = get_option('cdmServerUrl');
     $url .= '/dmwebservices/index.php?q=dmGetItemUrl'.$collection.'/'.$find.'/json';
+    echo $url;
+    die('moop');
     $urlInfo = json_decode(file_get_contents($url),true);      
     return $urlInfo['URL'];
+*/
 }
 
 function cdm_get_child_pages($collection,$pointer)
@@ -197,7 +204,7 @@ function cdm_get_item_meta($collection,$pointer,$all=false,$fields = false,$fiel
         $meta[$fieldmap[$field]][]=$value;
     }
     $meta['Transcript'][]= cdm_get_transcript($collection,$pointer);
-    $meta['Relation'][]= cdm_get_public_url($collection,$rawMeta['find']);
+    $meta['Relation'][]= cdm_get_public_url($collection,$pointer);
     return $meta;
 }
 
@@ -205,7 +212,6 @@ function cdm_get_raw_item_meta($collection,$pointer)
 {
     $url = get_option('cdmServerUrl');
     $url .= '/dmwebservices/index.php?q=dmGetItemInfo'.$collection.'/'.$pointer.'/json';
-
     $rawMeta = json_decode(file_get_contents($url),true);
     return $rawMeta;
 }

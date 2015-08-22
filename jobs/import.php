@@ -50,9 +50,9 @@ class CdmLink_ImportJob extends Omeka_Job_AbstractJob
             $collection = $item['alias'];
             $pointer = $item['pointer'];
 
-            echo("$collection - $pointer \n");
-            echo($this->_public."\n");
-            echo($this->_omekaCollection."\n");
+//            echo("$collection - $pointer \n");
+//            echo($this->_public."\n");
+//            echo($this->_omekaCollection."\n");
             
             //The $filename variable will hold the filename of the file 
             //associated with the primary 

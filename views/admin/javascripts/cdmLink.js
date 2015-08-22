@@ -1,10 +1,12 @@
 var cdmflag = false;
 var searchUrl = 'search/collection';
+var baseUrl;
 jQuery(document).ready(implementSearch);
 jQuery(document).ready(function(){
+baseUrl = jQuery('input#baseurl').val();
   jQuery('#cdmcollection').change(function(){
     jQuery('#cdm-field-select').html('<option value="all">All</option>');
-    url = 'fields/collection'+jQuery('#cdmcollection').val();
+    url = baseUrl+'fields/collection'+jQuery('#cdmcollection').val();
     jQuery.get(url,function(data){
       fields = JSON.parse(data);
       jQuery.each(fields,function(index,value){
@@ -51,7 +53,7 @@ function implementSearch() {
     searchTerm = jQuery('#cdm-search-box').val();
     collection = jQuery('#cdmcollection').val();
     jQuery.get(
-      searchUrl+collection+'/search/'+searchTerm,
+      baseUrl+searchUrl+collection+'/search/'+searchTerm,
       function(jsonData) {
 	data = jQuery.parseJSON(jsonData);
 	if(data.length > 0) {
