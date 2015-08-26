@@ -119,7 +119,7 @@ class Cdmlink_IndexController extends Omeka_Controller_AbstractActionController
       //require the helpers
       require_once(dirname(dirname(__FILE__)).'/helpers/APIfunctions.php');
       try{
-          $fields = json_encode(cdm_get_fields($this->getParam('collection')));
+          $fields = json_encode(cdm_get_fields('/'.$this->getParam('collection')));
       }catch(Exception $e) {
           die('Error connecting to ContentDM. Please check your internet connection and plugin configuration.');
       }

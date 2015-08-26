@@ -103,6 +103,7 @@ class Cdm_Form_Export extends Omeka_Form
         if(!is_array($pointers) || count($pointers)==0 )
             return;
 
+        //returns empty array!
         $fields = cdm_get_fields($cdmCollection);
 
         //header

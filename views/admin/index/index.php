@@ -4,6 +4,11 @@ $head = array('bodyclass' => 'cdm-link primary',
               'title' => html_escape(__('CdmLink | Import documents')));
 echo head($head);
 echo flash(); 
+?>
+<a href="<?php echo admin_url('cdm-link-export'); ?>"><button>
+  Export ContentDM items as CSV
+</button></a>
+<?php 
 echo $form;
 ?>
 <div id="cdm-search-div" class="field">

@@ -3,7 +3,7 @@ var searchUrl = 'search/collection';
 var baseUrl;
 jQuery(document).ready(implementSearch);
 jQuery(document).ready(function(){
-baseUrl = jQuery('input#baseurl').val();
+  baseUrl = jQuery('input#baseurl').val();
   jQuery('#cdmcollection').change(function(){
     jQuery('#cdm-field-select').html('<option value="all">All</option>');
     url = baseUrl+'fields/collection'+jQuery('#cdmcollection').val();
@@ -23,8 +23,8 @@ baseUrl = jQuery('input#baseurl').val();
       jQuery('div#cdm-search-div button').prop('disabled',true);
       jQuery('fieldset#fieldset-submit_buttons').show();
     } else {
-        jQuery('div#cdm-search-div input').prop('disabled',false);
-        jQuery('div#cdm-search-div button').prop('disabled',false);
+      jQuery('div#cdm-search-div input').prop('disabled',false);
+      jQuery('div#cdm-search-div button').prop('disabled',false);
     }
   });
   

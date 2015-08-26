@@ -24,8 +24,7 @@ function cdm_search($collection,$terms,$maxrecs = false)
             $term['field']=='CISOSEARCHALL';
         str_replace('!','',$term['string']);
         str_replace('^','',$term['string']);
-        $searchStrings .= $term['field'].'^'.$term['string'].'^'.$term['mo
-de'].'^'.$term['operator'];
+        $searchStrings .= $term['field'].'^'.$term['string'].'^'.$term['mode'].'^'.$term['operator'];
         $searchStrings .= '!';
     }
     $searchStrings = rtrim($searchStrings,'!');
@@ -55,7 +54,7 @@ de'].'^'.$term['operator'];
     $cdmUrl .= $showunpub.'/';
     $cdmUrl .= $denormalizeFacets.'/';
     $cdmUrl .= 'json';
-
+    
     $response = json_decode(file_get_contents($cdmUrl),true);
     if(!isset($response['records']))
         return false;
@@ -518,7 +517,7 @@ function cdm_get_fields($collection)
         return false;
     $url = get_option('cdmServerUrl');
 //    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
-    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
+    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo";
     $url.= $collection;
     $url .= "/json";
     $fields = json_decode(file_get_contents($url),true);
