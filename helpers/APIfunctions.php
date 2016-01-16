@@ -3,10 +3,6 @@
 function cdm_search($collection,$terms,$maxrecs = false) 
 {
     $searchStrings = '';
-/*    echo('<pre>');
-    print_r($terms);
-    echo('</pre>');
-    die();*/
     $newterms = array();
     foreach($terms as $term) {
         if(count($strings = preg_split('/\s+/', $term['string'])) > 0) {
@@ -394,6 +390,7 @@ function cdm_insert_item_files($item,$collection,$pointer,$filename) {
     
     foreach ($urls as $filename=>$url) 
         $paths[] = cdm_download_file($url,$filename);
+    
 
     if(isset($pdfPath))
         $paths[] = $pdfPath;
@@ -483,9 +480,9 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
             $elementSet = 'Dublin Core';
         }
         $element = $elementTable->findbyElementSetNameAndElementName($elementSet,$field);
-        if($field === 'filename' && !empty($values)){
+        if($field === 'filename' && !empty($values))
             $filename = is_array($values) ? $values[0] : $values;
-        }
+        
         $values = is_array($values) ? $values : array();
         foreach($values as $value){
             if(empty($value))
@@ -499,7 +496,10 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
             $eText->save();
         }
     }
-    
+
+    if($filename=="TIFF")
+        $filename = $pointer.".jpg";
+  
     if($filename){
         $filename = str_replace('tiff','jpg',$filename);
         $filename = str_replace('tif','jpg',$filename);
@@ -507,8 +507,8 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
         $filename = str_replace('png','jpg',$filename);
         $filename = str_replace('gif','jpg',$filename);
         $filename = str_replace('bmp','jpg',$filename);
-            }
-    cdm_insert_item_files($item,$collection,$pointer,$filename);
+        cdm_insert_item_files($item,$collection,$pointer,$filename);
+    }
 }
 
 function cdm_get_fields($collection)
@@ -516,7 +516,6 @@ function cdm_get_fields($collection)
     if($collection=='all')
         return false;
     $url = get_option('cdmServerUrl');
-//    $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo/";
     $url .= "/dmwebservices/index.php?q=dmGetCollectionFieldInfo";
     $url.= $collection;
     $url .= "/json";
