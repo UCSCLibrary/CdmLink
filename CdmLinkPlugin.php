@@ -45,8 +45,8 @@ class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
      * @var array Options and their default values.
      */
     protected $_options = array(
-        'cdmServerUrl' => 'https://server16019.contentdm.oclc.org/',
-        'cdmWebsiteUrl' => 'http://digitalcollections.ucsc.edu',
+        'cdmServerUrl' => 'https://server***YOUR SERVER NUMBER HERE***.contentdm.oclc.org/',
+        'cdmWebsiteUrl' => 'http://***YOUR.CDM.URL***.edu',
         'cdmMaxRecs' => 500,
         'cdmLimitImageSize' => true,
         'cdmMaxWidth' => 1200,
