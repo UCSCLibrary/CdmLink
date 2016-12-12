@@ -331,6 +331,38 @@ function cdm_get_nonpdfs($files) {
     return $nonPdfs;
 }
 
+function cdm_is_image($collection,$pointer,$filename = false)
+{
+    $childPages = cdm_get_child_pages($collection,$pointer);
+    if(empty($childPages)) {
+        //this means it is a simple object        
+        if(!$filename){
+            $mainUrl = cdm_get_file_url($collection,$pointer,$pointer);
+            $headers = get_headers($mainUrl);
+            foreach($headers as $header) {
+                if(strpos($header,'Content')===0){
+                    if(strpos($header,'image'))
+                        return true;
+                }
+            }
+        }
+    }
+    foreach($childPages as $childPage) {
+        if(strpos($childPage['filename'],'jpg'))
+            return true;
+        if(strpos($childPage['filename'],'tiff'))
+            return true;
+        if(strpos($childPage['filename'],'gif'))
+            return true;
+        if(strpos($childPage['filename'],'bmp'))
+            return true;
+        if(strpos($childPage['filename'],'tif'))
+            return true;
+    }
+    return false;
+}
+
+
 function cdm_get_item_files($collection,$pointer,$filename = false)
 {
 //    $filename = $filename ? $filename : $pointer;
@@ -508,6 +540,12 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
         $filename = str_replace('gif','jpg',$filename);
         $filename = str_replace('bmp','jpg',$filename);
         cdm_insert_item_files($item,$collection,$pointer,$filename);
+    }
+
+    if(cdm_is_image($collection,$pointer,$filename)) {
+        $imageType = get_db()->getTable('ItemType')->findByName('Still Image');
+        $item->item_type_id = is_object($imageType) ? $ImageType->id : null;
+        $item->save();
     }
 }
 
