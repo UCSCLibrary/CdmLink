@@ -12,7 +12,7 @@
  * 
  * @package CdmLink
  */
-class CdmLinkPlugin extends Omeka_plugin_AbstractPlugin
+class CdmLinkPlugin extends Omeka_Plugin_AbstractPlugin
 {
     public function __toString() 
     {
