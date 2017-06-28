@@ -50,8 +50,8 @@ class CdmLinkPlugin extends Omeka_Plugin_AbstractPlugin
         'cdmMaxRecs' => 500,
         'cdmLimitImageSize' => true,
         'cdmMaxWidth' => 1200,
-        'cdmConcatImages' => true,
-        'cdmConcatPdfs' => true,
+        'cdmConcatImages' => false,
+        'cdmConcatPdfs' => false,
         'cdmAutoSync' => true,
         'cdmLastSynced'=>false
     );
@@ -113,6 +113,9 @@ class CdmLinkPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookUpgrade()
     {
+        set_option('cdmAutoSync',false);
+        set_option('cdmConcatImages',false);
+        set_option('cdmConcatPdfs',false);
         set_option('cdmKnownSchema',serialize(array('dc'=>'Dublin Core','ucldc_schema'=>'UCLDC Schema')));
     }
 

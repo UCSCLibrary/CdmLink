@@ -38,7 +38,7 @@
         <p class="explanation"><?php echo __('Limit the size of imported high resolution images'); ?></p>
     </div>
 </div>
-
+<h3>Warning! The following functions are in development and are not fully tested. Use them at your own risk.</h3>
 <div class="field">
     <div id="cdm-concat-images-label" class="two columns alpha">
         <label for="cdm-concat-images-label"><?php echo __('Merge Images to PDF'); ?></label>
@@ -65,7 +65,7 @@
         <label for="cdm-auto-sync-label"><?php echo __('Autosync'); ?></label>
     </div>
     <div class="inputs five columns omega">
-<?php echo get_view()->formCheckbox('cdmAutoSync',true,array('checked'=>get_option('cdmAutoSync'))); ?>
+<?php echo get_view()->formCheckbox('cdmAutoSync',true,array('disabled'=>true,'checked'=>false)); ?>
         <p class="explanation"><?php echo __('Update imported omeka items when origin item in Content DM changes. (Changes to imported items made manually in the Omeka dashboard may be overwritten if autosync is enabled.'); ?></p>
     </div>
 </div>
