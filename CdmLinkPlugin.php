@@ -150,16 +150,11 @@ class CdmLinkPlugin extends Omeka_Plugin_AbstractPlugin
         if(!empty($_REQUEST['cdmMaxRecs']))
           set_option('cdmMaxRecs',$_REQUEST['cdmMaxRecs']);        
 
-        if(!empty($_REQUEST['cdmLimitImageSize']))
-          set_option('cdmLimitImageSize',$_REQUEST['cdmLimitImageSize']);    
-        if(!empty($_REQUEST['cdmMaxWidth']))
-          set_option('cdmMaxWidth',$_REQUEST['cdmMaxWidth']);        
-        if(!empty($_REQUEST['cdmConcatImages']))
-          set_option('cdmConcatImages',$_REQUEST['cdmConcatImages']);    
-        if(!empty($_REQUEST['cdmConcatPdfs']))
-          set_option('cdmConcatPdfs',$_REQUEST['cdmConcatPdfs']);        
-        if(!empty($_REQUEST['cdmAutoSync']))
-          set_option('cdmAutoSync',$_REQUEST['cdmAutoSync']);        
+          set_option('cdmLimitImageSize',!empty($_REQUEST['cdmLimitImageSize']));    
+          set_option('cdmMaxWidth',!empty($_REQUEST['cdmMaxWidth']));        
+          set_option('cdmConcatImages',!empty($_REQUEST['cdmConcatImages']));    
+          set_option('cdmConcatPdfs',!empty($_REQUEST['cdmConcatPdfs']));        
+          set_option('cdmAutoSync',!empty($_REQUEST['cdmAutoSync']));        
     }
     
     /**
