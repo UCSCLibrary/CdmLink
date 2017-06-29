@@ -368,39 +368,42 @@ function cdm_get_item_files($collection,$pointer,$filename = false)
 //    $filename = $filename ? $filename : $pointer;
     $urls = array();
 
+    if($filename) {
+        $mainUrl = cdm_get_file_url($collection,$pointer,$filename);
+        $urls[$filename] = $mainUrl;
+        return $urls;
+    }
+
     $childPages = cdm_get_child_pages($collection,$pointer);
     if(empty($childPages)) {
         //this means it is a simple object        
-        if(!$filename){
-            $filename=$pointer;
-            $mainUrl = cdm_get_file_url($collection,$pointer,$filename);
-            $headers = get_headers($mainUrl);
-            foreach($headers as $header) {
-                if(strpos($header,'Content')===0){
-                    if(strpos($header,'application/pdf'))
-                        $filename.='.pdf';
-                    if(strpos($header,'image/jpeg'))
+        $filename=$pointer;
+        $mainUrl = cdm_get_file_url($collection,$pointer,$filename);
+        $headers = get_headers($mainUrl);
+        foreach($headers as $header) {
+            if(strpos($header,'Content')===0){
+                if(strpos($header,'application/pdf'))
+                    $filename.='.pdf';
+                if(strpos($header,'image/jpeg'))
                     $filename.='.jpg';
-                }
             }
         }
         $mainUrl = cdm_get_file_url($collection,$pointer,$filename);
         $urls[$filename] = $mainUrl;
     }
     foreach($childPages as $childPage) {
-        $filename = str_replace('tiff','jpg',$childPage['filename']);                
-        $filename = str_replace('tif','jpg',$filename);
-        $filename = str_replace('jp2','jpg',$filename);
-        $filename = str_replace('png','jpg',$filename);
-        $filename = str_replace('gif','jpg',$filename);
-        $filename = str_replace('bmp','jpg',$filename);
+        $filename = str_replace('tiff','jpg',$childPage['filename']);
+        $filename = str_replace('tif','jpg',$childPage['filename']);
+        $filename = str_replace('jp2','jpg',$childPage['filename']);
+        $filename = str_replace('png','jpg',$childPage['filename']);
+        $filename = str_replace('gif','jpg',$childPage['filename']);
+        $filename = str_replace('bmp','jpg',$childPage['filename']);
         $urls[$filename] = cdm_get_file_url($collection,$childPage['pointer'],$childPage['filename']);
     }
     return $urls;
 }
 
-function cdm_insert_item_files($item,$collection,$pointer,$filename) {
-    //add the new files
+function cdm_insert_item_files($item,$collection,$pointer,$filename=false) {
     $urls = cdm_get_item_files($collection,$pointer,$filename);
     $paths = array();
 
@@ -498,8 +501,10 @@ function cdm_sync_item($collection,$pointer,$item_id) {
 function cdm_add_meta_and_files($item,$collection,$pointer) {
     $filename=false;
     $meta = cdm_get_item_meta($collection,$pointer);
+
     foreach($meta as $field=>$values) {
         $field = strpos($field,'-') ? substr($field,0,strpos($field,'-')) : $field ;
+
         $elementTable = get_db()->getTable('Element');
         if($field==='Transcript'){
             $elementSet = 'Item Type Metadata';
@@ -511,6 +516,7 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
         }else {
             $elementSet = 'Dublin Core';
         }
+
         $element = $elementTable->findbyElementSetNameAndElementName($elementSet,$field);
         if($field === 'filename' && !empty($values))
             $filename = is_array($values) ? $values[0] : $values;
@@ -529,10 +535,12 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
         }
     }
 
-    if($filename=="TIFF")
-        $filename = $pointer.".jpg";
-  
+    //attach the relevant file(s) to the items
     if($filename){
+        // if the filename is already defined from the metadata,
+        // it must be a simple item and we can focus on that
+        // file alone
+        $filename = ($filename=="TIFF") ? $pointer.".jpg" : $filename;
         $filename = str_replace('tiff','jpg',$filename);
         $filename = str_replace('tif','jpg',$filename);
         $filename = str_replace('jp2','jpg',$filename);
@@ -540,8 +548,14 @@ function cdm_add_meta_and_files($item,$collection,$pointer) {
         $filename = str_replace('gif','jpg',$filename);
         $filename = str_replace('bmp','jpg',$filename);
         cdm_insert_item_files($item,$collection,$pointer,$filename);
+    } else {
+        // if the filename is not defined from the metadata,
+        // it could be a compound item or a non-image item,
+        // so we need to gather all the files and insert them
+        cdm_insert_item_files($item,$collection,$pointer);
     }
 
+    //change item to Image type if it is an image
     if(cdm_is_image($collection,$pointer,$filename)) {
         $imageType = get_db()->getTable('ItemType')->findByName('Still Image');
         $item->item_type_id = is_object($imageType) ? $ImageType->id : null;
